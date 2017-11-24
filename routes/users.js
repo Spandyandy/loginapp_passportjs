@@ -91,11 +91,30 @@ passport.use(new LocalStrategy(
 ));
 
 
-app.post('/login',
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+  User.getUserById(id, (err, user) => {
+    done(err, user);
+  });
+});
+
+
+router.post('/login',
   passport.authenticate('local', {successRedirect:'/', failureRedirect:'/users/login',failureFlash: true}),
   (req, res) => {
     res.redirect('/');
   });
+
+router.get('/logout', (req, res) => {
+	req.logout();
+
+	req.flash('success_msg', 'You are logged out');
+
+	res.redirect('/users/login');
+});
 
 
 module.exports = router;
